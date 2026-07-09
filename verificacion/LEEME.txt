@@ -1,0 +1,13 @@
+Pruebas de la capa pura (no requieren JavaFX/POI/iText).
+Para ejecutarlas desde la raíz del proyecto:
+
+  mkdir -p out
+  javac -d out $(find src/main/java/me/julionxn/nobaitc/math \
+                       src/main/java/me/julionxn/nobaitc/stats \
+                       src/main/java/me/julionxn/nobaitc/doe -name "*.java") \
+                 src/main/java/me/julionxn/nobaitc/io/MatrixFormatter.java \
+                 verificacion/SmokeTest.java verificacion/EndToEnd.java
+  java -cp out SmokeTest
+  java -cp out EndToEnd
+
+Resultado esperado: "29 passed, 0 failed" y "PASS pipeline completo sin NaN".

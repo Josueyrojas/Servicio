@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 940" font-family="'Segoe UI', Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#9aa0a6"/>
+    </marker>
+  </defs>
+
+  <rect width="1000" height="940" fill="white"/>
+
+  <!-- Legend -->
+  <rect x="40" y="18" width="24" height="24" rx="6" fill="#eef1fd" stroke="#6a5acd" stroke-width="2"/>
+  <text x="74" y="36" font-size="20" fill="#333">presentación</text>
+
+  <rect x="248" y="18" width="24" height="24" rx="6" fill="#eafaf3" stroke="#2f9e77" stroke-width="2"/>
+  <text x="282" y="36" font-size="20" fill="#333">dominio</text>
+
+  <rect x="402" y="18" width="24" height="24" rx="6" fill="#f4efe6" stroke="#a89f8c" stroke-width="2"/>
+  <text x="436" y="36" font-size="20" fill="#333">infraestructura</text>
+
+  <!-- app -->
+  <rect x="40" y="80" width="750" height="80" rx="16" fill="#eef1fd" stroke="#6a5acd" stroke-width="2"/>
+  <text x="415" y="112" font-size="22" font-weight="bold" text-anchor="middle" fill="#3730a3">app</text>
+  <text x="415" y="140" font-size="16" text-anchor="middle" fill="#4b3fa0">Main · MainApplication (arranque JavaFX)</text>
+
+  <line x1="415" y1="160" x2="415" y2="188" stroke="#9aa0a6" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- ui -->
+  <rect x="40" y="190" width="750" height="100" rx="16" fill="#eef1fd" stroke="#6a5acd" stroke-width="2"/>
+  <text x="415" y="228" font-size="22" font-weight="bold" text-anchor="middle" fill="#3730a3">ui</text>
+  <text x="415" y="256" font-size="16" text-anchor="middle" fill="#4b3fa0">controllers (5) · viewmodel · FractionRow</text>
+
+  <!-- ui -> util -->
+  <line x1="790" y1="240" x2="828" y2="240" stroke="#9aa0a6" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- util -->
+  <rect x="830" y="190" width="130" height="130" rx="16" fill="#f4efe6" stroke="#a89f8c" stroke-width="2"/>
+  <text x="895" y="240" font-size="18" font-weight="bold" text-anchor="middle" fill="#57534e">util</text>
+  <text x="895" y="266" font-size="14" text-anchor="middle" fill="#6b6459">AppExecutor</text>
+  <text x="895" y="286" font-size="14" text-anchor="middle" fill="#6b6459">(transversal)</text>
+
+  <line x1="415" y1="290" x2="415" y2="318" stroke="#9aa0a6" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- io -->
+  <rect x="40" y="320" width="750" height="80" rx="16" fill="#f4efe6" stroke="#a89f8c" stroke-width="2"/>
+  <text x="415" y="352" font-size="22" font-weight="bold" text-anchor="middle" fill="#57534e">io</text>
+  <text x="415" y="380" font-size="16" text-anchor="middle" fill="#6b6459">ExcelWriter · PdfReportWriter · MatrixFormatter</text>
+
+  <line x1="415" y1="400" x2="415" y2="428" stroke="#9aa0a6" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- doe container -->
+  <rect x="20" y="430" width="790" height="230" rx="16" fill="none" stroke="#2f9e77" stroke-width="2" stroke-dasharray="8 6"/>
+  <text x="415" y="466" font-size="22" font-weight="bold" text-anchor="middle" fill="#1f5b46">doe — dominio</text>
+  <text x="415" y="490" font-size="16" text-anchor="middle" fill="#3d7a63">Diseño de Experimentos</text>
+
+  <rect x="40" y="510" width="175" height="110" rx="14" fill="#eafaf3" stroke="#2f9e77" stroke-width="2"/>
+  <text x="127" y="572" font-size="19" font-weight="bold" text-anchor="middle" fill="#1f5b46">design</text>
+
+  <rect x="230" y="510" width="175" height="110" rx="14" fill="#eafaf3" stroke="#2f9e77" stroke-width="2"/>
+  <text x="317" y="572" font-size="19" font-weight="bold" text-anchor="middle" fill="#1f5b46">metrics</text>
+
+  <rect x="420" y="510" width="175" height="110" rx="14" fill="#eafaf3" stroke="#2f9e77" stroke-width="2"/>
+  <text x="507" y="572" font-size="19" font-weight="bold" text-anchor="middle" fill="#1f5b46">nonbpa</text>
+
+  <rect x="610" y="510" width="175" height="110" rx="14" fill="#eafaf3" stroke="#2f9e77" stroke-width="2"/>
+  <text x="697" y="572" font-size="19" font-weight="bold" text-anchor="middle" fill="#1f5b46">alias</text>
+
+  <line x1="412" y1="660" x2="412" y2="688" stroke="#9aa0a6" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- stats -->
+  <rect x="40" y="690" width="750" height="80" rx="16" fill="#f4efe6" stroke="#a89f8c" stroke-width="2"/>
+  <text x="415" y="722" font-size="22" font-weight="bold" text-anchor="middle" fill="#57534e">stats</text>
+  <text x="415" y="750" font-size="16" text-anchor="middle" fill="#6b6459">Correlation (pearson · corrcoef)</text>
+
+  <line x1="415" y1="770" x2="415" y2="798" stroke="#9aa0a6" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- math -->
+  <rect x="40" y="800" width="750" height="100" rx="16" fill="#f4efe6" stroke="#a89f8c" stroke-width="2"/>
+  <text x="415" y="838" font-size="22" font-weight="bold" text-anchor="middle" fill="#57534e">math — núcleo</text>
+  <text x="415" y="866" font-size="16" text-anchor="middle" fill="#6b6459">Combinatorics · VectorOps · LinearAlgebra · UniqueRandom</text>
+</svg>

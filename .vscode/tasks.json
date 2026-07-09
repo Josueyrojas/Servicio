@@ -1,0 +1,86 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "javac: compile verificacion",
+            "type": "shell",
+            "command": "javac",
+            "args": [
+                "-d", "out",
+                "--release", "17",
+                "src/main/java/me/julionxn/nobaitc/math/Combinatorics.java",
+                "src/main/java/me/julionxn/nobaitc/math/LinearAlgebra.java",
+                "src/main/java/me/julionxn/nobaitc/math/SingularMatrixException.java",
+                "src/main/java/me/julionxn/nobaitc/math/UniqueRandom.java",
+                "src/main/java/me/julionxn/nobaitc/math/VectorOps.java",
+                "src/main/java/me/julionxn/nobaitc/stats/Correlation.java",
+                "src/main/java/me/julionxn/nobaitc/doe/alias/AliasAnalyzer.java",
+                "src/main/java/me/julionxn/nobaitc/doe/alias/AliasStructure.java",
+                "src/main/java/me/julionxn/nobaitc/doe/alias/EffectLabeler.java",
+                "src/main/java/me/julionxn/nobaitc/doe/alias/ModelMatrixBuilder.java",
+                "src/main/java/me/julionxn/nobaitc/doe/design/Design.java",
+                "src/main/java/me/julionxn/nobaitc/doe/design/FractionExtractor.java",
+                "src/main/java/me/julionxn/nobaitc/doe/metrics/FractionMetric.java",
+                "src/main/java/me/julionxn/nobaitc/doe/metrics/GbmMetric.java",
+                "src/main/java/me/julionxn/nobaitc/doe/metrics/J2Metric.java",
+                "src/main/java/me/julionxn/nobaitc/doe/metrics/VifsMetric.java",
+                "src/main/java/me/julionxn/nobaitc/doe/nonbpa/Fraction.java",
+                "src/main/java/me/julionxn/nobaitc/doe/nonbpa/NonbpaGenerator.java",
+                "src/main/java/me/julionxn/nobaitc/io/MatrixFormatter.java",
+                "verificacion/SmokeTest.java",
+                "verificacion/EndToEnd.java"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": ["$javac"],
+            "group": "build"
+        },
+        {
+            "label": "javac: compile app",
+            "type": "shell",
+            "command": "javac",
+            "args": [
+                "-d", "out-app",
+                "--release", "17",
+                "-cp", "${env:USERPROFILE}/.m2/repository/org/openjfx/javafx-base/20.0.2/javafx-base-20.0.2-win.jar;${env:USERPROFILE}/.m2/repository/org/openjfx/javafx-controls/20.0.2/javafx-controls-20.0.2-win.jar;${env:USERPROFILE}/.m2/repository/org/openjfx/javafx-fxml/20.0.2/javafx-fxml-20.0.2-win.jar;${env:USERPROFILE}/.m2/repository/org/openjfx/javafx-graphics/20.0.2/javafx-graphics-20.0.2-win.jar;${env:USERPROFILE}/.m2/repository/org/controlsfx/controlsfx/11.2.1/controlsfx-11.2.1.jar;${env:USERPROFILE}/.m2/repository/org/kordamp/ikonli/ikonli-core/12.4.0/ikonli-core-12.4.0.jar;${env:USERPROFILE}/.m2/repository/org/kordamp/ikonli/ikonli-javafx/12.4.0/ikonli-javafx-12.4.0.jar;${env:USERPROFILE}/.m2/repository/org/kordamp/ikonli/ikonli-fontawesome6-pack/12.4.0/ikonli-fontawesome6-pack-12.4.0.jar;${env:USERPROFILE}/.m2/repository/org/kordamp/ikonli/ikonli-typicons-pack/12.4.0/ikonli-typicons-pack-12.4.0.jar;${env:USERPROFILE}/.m2/repository/com/itextpdf/kernel/7.2.6/kernel-7.2.6.jar;${env:USERPROFILE}/.m2/repository/com/itextpdf/layout/7.2.6/layout-7.2.6.jar;${env:USERPROFILE}/.m2/repository/com/itextpdf/io/7.2.6/io-7.2.6.jar;${env:USERPROFILE}/.m2/repository/com/itextpdf/barcodes/7.2.6/barcodes-7.2.6.jar;${env:USERPROFILE}/.m2/repository/com/itextpdf/commons/7.2.6/commons-7.2.6.jar;${env:USERPROFILE}/.m2/repository/com/itextpdf/font-asian/7.2.6/font-asian-7.2.6.jar;${env:USERPROFILE}/.m2/repository/com/itextpdf/forms/7.2.6/forms-7.2.6.jar;${env:USERPROFILE}/.m2/repository/com/itextpdf/hyph/7.2.6/hyph-7.2.6.jar;${env:USERPROFILE}/.m2/repository/com/itextpdf/pdfa/7.2.6/pdfa-7.2.6.jar;${env:USERPROFILE}/.m2/repository/com/itextpdf/sign/7.2.6/sign-7.2.6.jar;${env:USERPROFILE}/.m2/repository/com/itextpdf/styled-xml-parser/7.2.6/styled-xml-parser-7.2.6.jar;${env:USERPROFILE}/.m2/repository/com/itextpdf/svg/7.2.6/svg-7.2.6.jar;${env:USERPROFILE}/.m2/repository/org/apache/poi/poi/5.2.3/poi-5.2.3.jar;${env:USERPROFILE}/.m2/repository/org/apache/poi/poi-ooxml/5.2.3/poi-ooxml-5.2.3.jar;${env:USERPROFILE}/.m2/repository/org/apache/poi/poi-ooxml-lite/5.2.3/poi-ooxml-lite-5.2.3.jar;${env:USERPROFILE}/.m2/repository/org/apache/xmlbeans/xmlbeans/5.1.1/xmlbeans-5.1.1.jar;${env:USERPROFILE}/.m2/repository/org/apache/commons/commons-collections4/4.4/commons-collections4-4.4.jar;${env:USERPROFILE}/.m2/repository/org/apache/commons/commons-compress/1.26.1/commons-compress-1.26.1.jar;${env:USERPROFILE}/.m2/repository/org/apache/commons/commons-math3/3.6.1/commons-math3-3.6.1.jar;${env:USERPROFILE}/.m2/repository/com/github/virtuald/curvesapi/1.07/curvesapi-1.07.jar;${env:USERPROFILE}/.m2/repository/org/slf4j/slf4j-api/1.7.36/slf4j-api-1.7.36.jar;${env:USERPROFILE}/.m2/repository/org/slf4j/slf4j-simple/1.7.36/slf4j-simple-1.7.36.jar;${env:USERPROFILE}/.m2/repository/org/apache/logging/log4j/log4j-api/2.18.0/log4j-api-2.18.0.jar",
+                "src/main/java/me/julionxn/nobaitc/app/Main.java",
+                "src/main/java/me/julionxn/nobaitc/app/MainApplication.java",
+                "src/main/java/me/julionxn/nobaitc/doe/alias/AliasAnalyzer.java",
+                "src/main/java/me/julionxn/nobaitc/doe/alias/AliasStructure.java",
+                "src/main/java/me/julionxn/nobaitc/doe/alias/EffectLabeler.java",
+                "src/main/java/me/julionxn/nobaitc/doe/alias/ModelMatrixBuilder.java",
+                "src/main/java/me/julionxn/nobaitc/doe/design/Design.java",
+                "src/main/java/me/julionxn/nobaitc/doe/design/FractionExtractor.java",
+                "src/main/java/me/julionxn/nobaitc/doe/metrics/FractionMetric.java",
+                "src/main/java/me/julionxn/nobaitc/doe/metrics/GbmMetric.java",
+                "src/main/java/me/julionxn/nobaitc/doe/metrics/J2Metric.java",
+                "src/main/java/me/julionxn/nobaitc/doe/metrics/VifsMetric.java",
+                "src/main/java/me/julionxn/nobaitc/doe/nonbpa/Fraction.java",
+                "src/main/java/me/julionxn/nobaitc/doe/nonbpa/NonbpaGenerator.java",
+                "src/main/java/me/julionxn/nobaitc/io/ClipboardHelper.java",
+                "src/main/java/me/julionxn/nobaitc/io/ExcelWriter.java",
+                "src/main/java/me/julionxn/nobaitc/io/MatrixFormatter.java",
+                "src/main/java/me/julionxn/nobaitc/io/PdfReportWriter.java",
+                "src/main/java/me/julionxn/nobaitc/math/Combinatorics.java",
+                "src/main/java/me/julionxn/nobaitc/math/LinearAlgebra.java",
+                "src/main/java/me/julionxn/nobaitc/math/SingularMatrixException.java",
+                "src/main/java/me/julionxn/nobaitc/math/UniqueRandom.java",
+                "src/main/java/me/julionxn/nobaitc/math/VectorOps.java",
+                "src/main/java/me/julionxn/nobaitc/stats/Correlation.java",
+                "src/main/java/me/julionxn/nobaitc/ui/controllers/AliasStructureController.java",
+                "src/main/java/me/julionxn/nobaitc/ui/controllers/ExcelPreviewController.java",
+                "src/main/java/me/julionxn/nobaitc/ui/controllers/FractionResultDetailsController.java",
+                "src/main/java/me/julionxn/nobaitc/ui/controllers/MainController.java",
+                "src/main/java/me/julionxn/nobaitc/ui/controllers/NONBPAController.java",
+                "src/main/java/me/julionxn/nobaitc/ui/viewmodel/FractionRow.java",
+                "src/main/java/me/julionxn/nobaitc/util/AppExecutor.java"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": ["$javac"],
+            "group": "build"
+        }
+    ]
+}

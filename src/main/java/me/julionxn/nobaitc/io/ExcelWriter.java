@@ -147,7 +147,15 @@ public class ExcelWriter {
                     titleRow.createCell(colOffset + i).setCellStyle(titleStyle);
                 }
 
-                currentRowS2++;
+                // Encabezado "Factor 1, Factor 2, ..." para que la matriz se
+                // pueda extraer/pegar en otra herramienta (p. ej. Matlab) sin
+                // ambigüedad sobre qué columna es cada factor.
+                if (matrix != null && matrix.length > 0) {
+                    Row headerRow = sheet2.createRow(currentRowS2++);
+                    for (int c = 0; c < matrix[0].length; c++) {
+                        setupCell(headerRow, colOffset + c, "Factor " + (c + 1), headerStyle);
+                    }
+                }
 
                 if (matrix != null) {
                     for (double[] mRow : matrix) {
@@ -165,8 +173,16 @@ public class ExcelWriter {
             }
             askToOpenFile(file);
 
-        } catch (IOException e) {
-            showErrorAlert("Error de Escritura", "No se pudo guardar el archivo: " + e.getMessage());
+        } catch (Exception e) {
+            // HALLAZGO DE REVISIÓN (corregido): antes sólo se atrapaba IOException,
+            // así que cualquier otra excepción durante el armado del workbook (POI,
+            // formato de datos, etc.) se perdía en silencio: no aparecía ningún
+            // diálogo y el usuario veía "no se guardó nada" sin ninguna pista. Ahora
+            // cualquier fallo se reporta con su clase y mensaje reales.
+            showErrorAlert("Error de Escritura",
+                    "No se pudo guardar el archivo: " + e.getClass().getSimpleName()
+                            + (e.getMessage() != null ? " — " + e.getMessage() : ""));
+            e.printStackTrace();
         }
     }
     // --- MÉTODOS DE SOPORTE ---

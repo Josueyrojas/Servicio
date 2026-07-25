@@ -362,9 +362,6 @@ public class AliasStructureController implements Initializable {
         String[][] letras  = structure.getMatrizLetras();
         int A = msz.length;
         int L = efectos.length;
-        // Solo se reportan los efectos PRINCIPALES (A, B, C, …): las primeras
-        // `me` columnas. Las interacciones (A-B, A-B-C, …) no se listan como
-        // renglón propio; a lo sumo aparecen como alias de un efecto principal.
         int me = structure.getNumEfectosPrincipales();
 
         sb.append("==============================================\n");
@@ -380,13 +377,19 @@ public class AliasStructureController implements Initializable {
             sb.append("Efectos con alias: ").append(structure.getAliasCount()).append("\n\n");
         }
 
-        // Una línea por efecto PRINCIPAL:  EFECTO = ±coef·ALIAS1  ±coef·ALIAS2 ...
-        for (int x = 0; x < me; x++) {
+        // Una línea por cada efecto con contenido propio: los `me` efectos
+        // PRINCIPALES siempre aparecen (aunque sea sin alias), y además
+        // cualquier interacción que sea "cabeza" de un alias (p. ej. una doble
+        // aliada con otra doble: AB = AB -0.9221·A-C). Antes el bucle se
+        // limitaba a `me`, así que esas interacciones desaparecían del reporte.
+        //   EFECTO = ±coef·ALIAS1  ±coef·ALIAS2 ...
+        double zeroTol = 1e-6;
+        for (int x = 0; x < L; x++) {
             // Recolectar todos los términos de la columna x
             List<String> terminos = new ArrayList<>();
             for (int xx = 0; xx < A; xx++) {
                 double val = msz[xx][x];
-                if (val == 0) continue;
+                if (Math.abs(val) <= zeroTol) continue;
 
                 String signo  = val >= 0 ? "+" : "-";
                 double absVal = Math.abs(val);
@@ -395,7 +398,7 @@ public class AliasStructureController implements Initializable {
                 // Si el coeficiente es exactamente 1, no mostrarlo
                 String coefStr = (Math.abs(absVal - 1.0) < 0.0001)
                     ? signo + etiq
-                    : String.format("%s%.4f·%s", signo, absVal, etiq);
+                    : String.format("%s%.6f·%s", signo, absVal, etiq);
 
                 terminos.add(coefStr);
             }

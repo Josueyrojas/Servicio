@@ -94,7 +94,7 @@ public class NONBPAController implements Initializable {
     private static final int INITIAL_FACTORS = 2;
     private static final int MAX_FACTORS = 15;
     private static final String NUMERIC_REGEX = "\\d*";
-    private static final String NUMBER_FORMAT = "%.4f";
+    private static final String NUMBER_FORMAT = "%.6f";
 
     public NONBPAController() {
         this.generator = new NonbpaGenerator();
@@ -228,12 +228,6 @@ public class NONBPAController implements Initializable {
             return;
         }
 
-        if (currentSize > 0) {
-            VBox lastBox = (VBox) factorsInputContainer.getChildren().get(currentSize - 1);
-            TextField lastLevelField = (TextField) lastBox.getChildren().get(1);
-            lastLevelField.setOnMouseClicked(null);
-        }
-
         int columna = currentSize % 5;
         int renglon = currentSize / 5;
 
@@ -257,41 +251,9 @@ public class NONBPAController implements Initializable {
         TextField levelField = createLevelTextField();
         levelField.setMinWidth(64);
 
-        // Autollenado: el factor N se prellena con el N-ésimo número primo
-        // (2, 3, 5, 7, 11, …). Los primos son coprimos entre sí, por lo que el
-        // diseño resultante cumple TR = LCM y es válido por defecto. El usuario
-        // puede sobrescribir el valor si necesita otros niveles.
-        levelField.setText(String.valueOf(nthPrime(factorNumber)));
-
-        levelField.setOnMouseClicked(event -> addFactorInput());
         factorBox.getChildren().addAll(label, levelField);
 
         return factorBox;
-    }
-
-    /** Devuelve el n-ésimo número primo (n base 1): 1→2, 2→3, 3→5, 4→7, … */
-    private static int nthPrime(int n) {
-        int count = 0;
-        int candidate = 1;
-        while (count < n) {
-            candidate++;
-            if (isPrime(candidate)) {
-                count++;
-            }
-        }
-        return candidate;
-    }
-
-    private static boolean isPrime(int x) {
-        if (x < 2) {
-            return false;
-        }
-        for (int i = 2; (long) i * i <= x; i++) {
-            if (x % i == 0) {
-                return false;
-            }
-        }
-        return true;
     }
 
     private TextField createLevelTextField() {
@@ -314,13 +276,6 @@ public class NONBPAController implements Initializable {
         if (factorsInputContainer.getChildren().size() > MIN_FACTORS) {
             int lastIndex = factorsInputContainer.getChildren().size() - 1;
             factorsInputContainer.getChildren().remove(lastIndex);
-
-            int newSize = factorsInputContainer.getChildren().size();
-            if (newSize > 0) {
-                VBox newLastBox = (VBox) factorsInputContainer.getChildren().get(newSize - 1);
-                TextField newLastLevelField = (TextField) newLastBox.getChildren().get(1);
-                newLastLevelField.setOnMouseClicked(event -> addFactorInput());
-            }
 
             updateRemoveButtonState();
             updateDesignInfo();
@@ -497,7 +452,7 @@ public class NONBPAController implements Initializable {
 
         for (Fraction result : results) {
             log.append(String.format(
-                    "Fracción %d - GBM: %.4f, J2: %.4f, Max VIF: %.4f\n",
+                    "Fracción %d - GBM: %.6f, J2: %.6f, Max VIF: %.6f\n",
                     result.getFractionNumber(),
                     result.getGbm(),
                     result.getJ2(),

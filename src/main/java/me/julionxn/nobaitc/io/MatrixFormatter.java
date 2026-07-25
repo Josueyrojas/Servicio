@@ -21,12 +21,12 @@ public final class MatrixFormatter {
         return LETTERS[index % LETTERS.length];
     }
 
-    /** Formatea un valor: entero si no tiene parte decimal, si no 4 decimales. */
+    /** Formatea un valor: entero si no tiene parte decimal, si no 6 decimales. */
     public static String number(double value) {
         if (value == (long) value) {
             return String.format("%d", (long) value);
         }
-        return String.format("%.4f", value);
+        return String.format("%.6f", value);
     }
 
     /** Vector entre corchetes: {@code [1, 2, 3]}. */

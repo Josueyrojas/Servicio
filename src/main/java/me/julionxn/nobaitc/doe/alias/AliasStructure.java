@@ -24,6 +24,17 @@ public class AliasStructure {
     private final Map<String, List<AliasPair>> aliasMap;
 
     /**
+     * Tolerancia para tratar un coeficiente como "cero" al decidir si un efecto
+     * tiene alias. Las correlaciones se acarrean desde divisiones en punto
+     * flotante (p. ej. 1/3, 2/3 en la normalización de niveles) que a veces son
+     * matemáticamente cero pero quedan como residuos de magnitud ~1e-16 tras la
+     * comparación de signos en {@code AliasAnalyzer.restoreSigns}. Sin esta
+     * tolerancia, esos residuos generaban términos fantasma como
+     * "C = C  +0.0000·A-C" en lugar de "C = C".
+     */
+    private static final double ZERO_TOL = 1e-6;
+
+    /**
      * @param msz           matriz de alias (A x L)
      * @param effectNames   nombres de los efectos (longitud L)
      * @param letterMatrix  matriz de etiquetas (A x L)
@@ -54,7 +65,7 @@ public class AliasStructure {
         for (int x = 0; x < l; x++) {
             boolean hasAlias = false;
             for (int xx = 0; xx < a; xx++) {
-                if (matrizAlias[xx][x] != 0) {
+                if (Math.abs(matrizAlias[xx][x]) > ZERO_TOL) {
                     hasAlias = true;
                     break;
                 }
@@ -65,7 +76,7 @@ public class AliasStructure {
             List<AliasPair> pairs = new ArrayList<>();
             for (int xx = 0; xx < a; xx++) {
                 double val = matrizAlias[xx][x];
-                if (val != 0) {
+                if (Math.abs(val) > ZERO_TOL) {
                     pairs.add(new AliasPair(val, matrizLetras[xx][x]));
                 }
             }
@@ -97,19 +108,26 @@ public class AliasStructure {
     }
 
     /**
-     * Resumen compacto de la estructura de alias, una línea por efecto
-     * PRINCIPAL (A, B, C, …). Cada línea tiene la forma
-     * {@code "A = A  -0.4019·B-C"}. Es la representación que se muestra tanto en
-     * la columna "Alias" de la tabla de resultados como en la pestaña de alias.
+     * Resumen compacto de la estructura de alias, una línea por cada efecto que
+     * tiene contenido propio: los efectos PRINCIPALES (A, B, C, …) siempre
+     * aparecen (aunque sea sin alias, p. ej. {@code "C = C"}), y además
+     * cualquier interacción que sea "cabeza" de un alias (p. ej. una doble
+     * aliada con otra doble: {@code "AB = AB  -0.9221·A-C"}). Antes el bucle se
+     * limitaba a los {@code numEfectosPrincipales} primeros efectos, así que una
+     * interacción aliada con otra interacción (sin que ningún efecto principal
+     * participara) desaparecía por completo del resumen. Cada línea tiene la
+     * forma {@code "A = A  -0.4019·B-C"}. Es la representación que se muestra
+     * tanto en la columna "Alias" de la tabla de resultados como en la pestaña
+     * de alias.
      */
     public String mainEffectsSummary() {
         int a = matrizAlias.length;
         List<String> lines = new ArrayList<>();
-        for (int x = 0; x < numEfectosPrincipales; x++) {
+        for (int x = 0; x < efectos.length; x++) {
             List<String> terms = new ArrayList<>();
             for (int xx = 0; xx < a; xx++) {
                 double val = matrizAlias[xx][x];
-                if (val == 0) {
+                if (Math.abs(val) <= ZERO_TOL) {
                     continue;
                 }
                 String sign = val >= 0 ? "+" : "-";
@@ -117,7 +135,7 @@ public class AliasStructure {
                 String label = matrizLetras[xx][x];
                 terms.add(Math.abs(abs - 1.0) < 0.0001
                         ? sign + label
-                        : String.format("%s%.4f·%s", sign, abs, label));
+                        : String.format("%s%.6f·%s", sign, abs, label));
             }
             if (terms.isEmpty()) {
                 continue;
@@ -182,7 +200,7 @@ public class AliasStructure {
 
         @Override
         public String toString() {
-            return String.format("%+.4f %s", coeficiente, efecto);
+            return String.format("%+.6f %s", coeficiente, efecto);
         }
     }
 }

@@ -150,11 +150,21 @@ public class ExcelWriter {
                 // Encabezado "Factor 1, Factor 2, ..." para que la matriz se
                 // pueda extraer/pegar en otra herramienta (p. ej. Matlab) sin
                 // ambigüedad sobre qué columna es cada factor.
+                //
+                // HALLAZGO DE REVISIÓN (corregido): "currentRowS2++" dentro del
+                // propio createRow() usaba el valor ANTES de incrementar, o sea
+                // la MISMA fila que titleRow. Sheet.createRow() con un índice ya
+                // usado destruye la fila anterior, así que el encabezado borraba
+                // el título "Fracción N" en cada iteración (y su región
+                // combinada quedaba flotando encima, tapando "Factor 2"/"Factor
+                // 3" en Excel aunque el dato sí estuviera en el archivo).
                 if (matrix != null && matrix.length > 0) {
-                    Row headerRow = sheet2.createRow(currentRowS2++);
+                    currentRowS2++;
+                    Row headerRow = sheet2.createRow(currentRowS2);
                     for (int c = 0; c < matrix[0].length; c++) {
                         setupCell(headerRow, colOffset + c, "Factor " + (c + 1), headerStyle);
                     }
+                    currentRowS2++;
                 }
 
                 if (matrix != null) {

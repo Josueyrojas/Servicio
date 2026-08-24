@@ -61,8 +61,12 @@ if ($LASTEXITCODE -ne 0) { throw "jar fallo" }
 foreach ($d in $deps) { Copy-Item (Join-Path $m2 $d) dist-input\ }
 
 Write-Host "== 4/4: generando .exe con jpackage =="
+# MaxRAMPercentage (en vez de un -Xmx fijo) deja que el heap se adapte a la RAM
+# de cada máquina donde se instale: la estructura de alias de un diseño grande
+# (p. ej. 40 factores -> ~10 700 efectos) puede necesitar unos pocos GB.
 & jpackage --type app-image --input dist-input --dest dist-out --name NOBAITC `
-    --main-jar app.jar --main-class me.julionxn.nobaitc.app.Main --app-version 1.0
+    --main-jar app.jar --main-class me.julionxn.nobaitc.app.Main --app-version 1.0 `
+    --java-options "-XX:MaxRAMPercentage=75.0"
 if ($LASTEXITCODE -ne 0) { throw "jpackage fallo" }
 
 Write-Host "`nListo: dist-out\NOBAITC\NOBAITC.exe"

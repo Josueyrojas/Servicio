@@ -56,6 +56,14 @@ public class AliasStructureController implements Initializable {
     private Label statusLabel;
 
     private static final int MAX_SIZE = 120;
+
+    /**
+     * A partir de este número de efectos (principales + dobles + triples) se
+     * avisa antes de lanzar el cálculo: para diseños grandes (p. ej. 40
+     * factores → 10 700 efectos) puede tardar varios segundos y usar varios
+     * cientos de MB o unos pocos GB de memoria.
+     */
+    private static final long WARNING_EFFECT_THRESHOLD = 3000;
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         setupUI();
@@ -108,6 +116,10 @@ public class AliasStructureController implements Initializable {
         // 3. Mostrar info de dimensiones
         int corridas = fraction.length;
         int factores = fraction[0].length;
+        if (!confirmLargeComputation(factores)) {
+            showStatus("Cálculo cancelado.", false);
+            return;
+        }
         showStatus(
                 "Fracción: " + corridas + " corridas × " + factores + " factores. Calculando...",
                 false
@@ -198,6 +210,10 @@ public class AliasStructureController implements Initializable {
         // 3. Mostrar info de dimensiones
         int corridas = fraction.length;
         int factores = fraction[0].length;
+        if (!confirmLargeComputation(factores)) {
+            showStatus("Cálculo cancelado.", false);
+            return;
+        }
         showStatus(
                 "Fracción: " + corridas + " corridas × " + factores + " factores. Calculando...",
                 false
@@ -359,7 +375,6 @@ public class AliasStructureController implements Initializable {
 
         double[][] msz     = structure.getMatrizAlias();
         String[]   efectos = structure.getEfectos();
-        String[][] letras  = structure.getMatrizLetras();
         int A = msz.length;
         int L = efectos.length;
         int me = structure.getNumEfectosPrincipales();
@@ -393,7 +408,7 @@ public class AliasStructureController implements Initializable {
 
                 String signo  = val >= 0 ? "+" : "-";
                 double absVal = Math.abs(val);
-                String etiq   = letras[xx][x];
+                String etiq   = efectos[xx];
 
                 // Si el coeficiente es exactamente 1, no mostrarlo
                 String coefStr = (Math.abs(absVal - 1.0) < 0.0001)
@@ -434,6 +449,32 @@ public class AliasStructureController implements Initializable {
         statusLabel.setStyle(isError
             ? "-fx-text-fill: #cc0000; -fx-font-weight: bold;"
             : "-fx-text-fill: #006600;");
+    }
+
+    /**
+     * Con muchos factores el número de efectos (principales + dobles + triples)
+     * crece rápido — 40 factores ya son ~10 700 efectos — y el cálculo puede
+     * tardar varios segundos y usar varios GB de RAM. Se avisa antes de
+     * lanzarlo para que no se sienta como un cuelgue; el usuario decide si
+     * continúa. Diseños chicos (la inmensa mayoría) pasan directo, sin diálogo.
+     */
+    private boolean confirmLargeComputation(int factores) {
+        long effects = AliasAnalyzer.effectCount(factores);
+        if (effects <= WARNING_EFFECT_THRESHOLD) {
+            return true;
+        }
+        // Estimación conservadora: un par de buffers triangulares vivos a la
+        // vez más el resultado final denso, ~3 matrices L×L equivalentes.
+        double estimatedMb = (effects * (double) effects * 8.0 * 3.0) / 1_000_000.0;
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Diseño grande");
+        alert.setHeaderText(factores + " factores → " + effects + " efectos a analizar "
+                + "(principales + interacciones dobles y triples)");
+        alert.setContentText(String.format(
+                "Este cálculo puede tardar varios segundos y usar hasta ~%.0f MB de memoria."
+                + "%n¿Continuar de todas formas?",
+                estimatedMb));
+        return alert.showAndWait().filter(b -> b == ButtonType.OK).isPresent();
     }
 
     public void setMatrixData(String data) {

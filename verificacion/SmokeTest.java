@@ -69,7 +69,7 @@ public class SmokeTest {
         };
         AliasStructure as = new AliasAnalyzer(full2x2).generate();
         check("alias MSZ square", as.getMatrizAlias().length==as.getMatrizAlias()[0].length);
-        check("alias effects A,B,A-B present", Arrays.asList(as.getEfectos()).contains("A") && Arrays.asList(as.getEfectos()).contains("A-B"));
+        check("alias effects A,B,AB present", Arrays.asList(as.getEfectos()).contains("A") && Arrays.asList(as.getEfectos()).contains("AB"));
         check("full 2x2 factorial reported orthogonal", as.isOrthogonal());
         System.out.println("  -> effects: "+Arrays.toString(as.getEfectos())+", orthogonal="+as.isOrthogonal()+", aliasCount="+as.getAliasCount());
 
@@ -79,7 +79,7 @@ public class SmokeTest {
         for(int i1=1;i1<=2;i1++)for(int i2=1;i2<=2;i2++)for(int i3=1;i3<=2;i3++){full222[r][0]=i1;full222[r][1]=i2;full222[r][2]=i3;r++;}
         AliasStructure as2 = new AliasAnalyzer(full222).generate();
         check("2x2x2 alias MSZ square", as2.getMatrizAlias().length==as2.getMatrizAlias()[0].length);
-        check("2x2x2 has triples (A-B-C)", Arrays.asList(as2.getEfectos()).contains("A-B-C"));
+        check("2x2x2 has triples (ABC)", Arrays.asList(as2.getEfectos()).contains("ABC"));
         check("2x2x2 full factorial orthogonal", as2.isOrthogonal());
         System.out.println("  -> effects: "+Arrays.toString(as2.getEfectos()));
         System.out.println("  -> aliasCount="+as2.getAliasCount()+" orthogonal="+as2.isOrthogonal());

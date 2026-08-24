@@ -1,20 +1,17 @@
 package me.julionxn.nobaitc.doe.alias;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
- * Genera las etiquetas de los efectos (principales, dobles y triples) y la
- * matriz de letras asociada.
+ * Genera las etiquetas de los efectos (principales, dobles y triples).
  *
- * <p>Extraído de {@code AliasStructureGenerator.generarCombinacionesLetras} y
- * {@code obtenerLetraExcel}. Responsabilidad única: nomenclatura de efectos.</p>
+ * <p>Extraído de {@code AliasStructureGenerator.generarCombinacionesLetras}.
+ * Responsabilidad única: nomenclatura de efectos.</p>
  */
 final class EffectLabeler {
 
     private final String[] effectNames;     // renglonLetras
-    private final String[][] letterMatrix;  // matrixLetras
 
     /**
      * @param factors número de factores (efectos principales)
@@ -25,6 +22,15 @@ final class EffectLabeler {
             variables[i] = excelLetter(i);
         }
 
+        // Sin separador entre letras cuando cada factor cabe en una sola letra
+        // (formato Matlab: 'AB', 'ACD', no "A-B") — así el resumen de alias
+        // coincide con la salida de MATLAB de MATRIXLETRAS/RENGLONLETRAS. Pasados
+        // los 26 factores, "AB"+"AC" (dobles de los factores 27 y 28) sería
+        // indistinguible de "A"+"B"+"AC" (triple de los factores 1, 2 y 28): a
+        // partir de ahí se usa "-" como separador para que cada nombre siga
+        // siendo único.
+        String sep = factors > 26 ? "-" : "";
+
         List<String> combinations = new ArrayList<>();
         // Efectos principales
         for (int i = 0; i < factors; i++) {
@@ -33,7 +39,7 @@ final class EffectLabeler {
         // Interacciones dobles
         for (int i = 0; i < factors; i++) {
             for (int j = i + 1; j < factors; j++) {
-                combinations.add(variables[i] + "-" + variables[j]);
+                combinations.add(variables[i] + sep + variables[j]);
             }
         }
         // Interacciones triples
@@ -41,26 +47,17 @@ final class EffectLabeler {
             for (int i = 0; i < factors; i++) {
                 for (int j = i + 1; j < factors; j++) {
                     for (int k = j + 1; k < factors; k++) {
-                        combinations.add(variables[i] + "-" + variables[j] + "-" + variables[k]);
+                        combinations.add(variables[i] + sep + variables[j] + sep + variables[k]);
                     }
                 }
             }
         }
 
         this.effectNames = combinations.toArray(new String[0]);
-        int total = effectNames.length;
-        this.letterMatrix = new String[total][total];
-        for (int i = 0; i < total; i++) {
-            Arrays.fill(letterMatrix[i], effectNames[i]);
-        }
     }
 
     String[] effectNames() {
         return effectNames;
-    }
-
-    String[][] letterMatrix() {
-        return letterMatrix;
     }
 
     /** Convierte un índice (0,1,…,26) en letras estilo Excel (A,B,…,AA). */

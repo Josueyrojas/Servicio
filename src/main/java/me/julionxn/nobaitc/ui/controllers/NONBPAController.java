@@ -184,6 +184,34 @@ public class NONBPAController implements Initializable {
 
         setupNumericColumn(gbmColumn);
         setupNumericColumn(j2Column);
+        setupWrappingColumn(aliasColumn);
+    }
+
+    /**
+     * El resumen de alias es multilínea (una cadena por renglón). La celda por
+     * defecto de {@code TableColumn} sólo muestra una línea y recorta el resto;
+     * esto envuelve el texto en un {@link Label} con alto flexible para que la
+     * fila crezca y se vea la estructura de alias completa.
+     */
+    private void setupWrappingColumn(TableColumn<FractionRow, String> column) {
+        column.setCellFactory(tc -> new TableCell<>() {
+            private final Label label = new Label();
+            {
+                label.setWrapText(true);
+                label.maxWidthProperty().bind(column.widthProperty().subtract(10));
+            }
+
+            @Override
+            protected void updateItem(String value, boolean empty) {
+                super.updateItem(value, empty);
+                if (empty || value == null) {
+                    setGraphic(null);
+                } else {
+                    label.setText(value);
+                    setGraphic(label);
+                }
+            }
+        });
     }
 
     private void setupNumericColumn(TableColumn<FractionRow, Double> column) {

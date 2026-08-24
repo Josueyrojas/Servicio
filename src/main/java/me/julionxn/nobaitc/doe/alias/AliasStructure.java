@@ -7,19 +7,24 @@ import java.util.Map;
 
 /**
  * Estructura de alias resultante del análisis: matriz de alias, nombres de
- * efectos, matriz de letras y un mapa de consulta.
+ * efectos y un mapa de consulta.
  *
- * <p>API pública idéntica a la versión anterior ({@code getMatrizAlias},
- * {@code getEfectos}, {@code getMatrizLetras}, {@code getNumEfectosPrincipales},
- * {@code getAliasMap}, {@code isOrthogonal}, {@code getAliasCount}), pero sin
- * Lombok, con getters explícitos, para que el módulo de dominio compile y se
- * pruebe de forma independiente.</p>
+ * <p>API pública ({@code getMatrizAlias}, {@code getEfectos},
+ * {@code getNumEfectosPrincipales}, {@code getAliasMap}, {@code isOrthogonal},
+ * {@code getAliasCount}), sin Lombok, con getters explícitos, para que el
+ * módulo de dominio compile y se pruebe de forma independiente.</p>
+ *
+ * <p>{@code getMatrizLetras()} existía antes como una matriz {@code L×L} de
+ * String donde CADA fila {@code xx} repetía {@code L} veces el mismo valor
+ * {@code efectos[xx]} — nunca dependía de la segunda columna. Para diseños
+ * grandes (p. ej. {@code L≈10 700} con 40 factores) esa redundancia por sí
+ * sola pesaba casi 1&nbsp;GB en referencias. Se eliminó: donde antes se leía
+ * {@code matrizLetras[xx][x]}, ahora se usa directamente {@code efectos[xx]}.</p>
  */
 public class AliasStructure {
 
     private final double[][] matrizAlias;
     private final String[] efectos;
-    private final String[][] matrizLetras;
     private final int numEfectosPrincipales;
     private final Map<String, List<AliasPair>> aliasMap;
 
@@ -37,14 +42,11 @@ public class AliasStructure {
     /**
      * @param msz           matriz de alias (A x L)
      * @param effectNames   nombres de los efectos (longitud L)
-     * @param letterMatrix  matriz de etiquetas (A x L)
      * @param mainEffects   número de efectos principales
      */
-    public AliasStructure(double[][] msz, String[] effectNames,
-                          String[][] letterMatrix, int mainEffects) {
+    public AliasStructure(double[][] msz, String[] effectNames, int mainEffects) {
         this.matrizAlias = msz;
         this.efectos = effectNames;
-        this.matrizLetras = letterMatrix;
         this.numEfectosPrincipales = mainEffects;
         this.aliasMap = new LinkedHashMap<>();
         buildAliasMap();
@@ -54,7 +56,6 @@ public class AliasStructure {
 
     public double[][] getMatrizAlias()       { return matrizAlias; }
     public String[] getEfectos()             { return efectos; }
-    public String[][] getMatrizLetras()      { return matrizLetras; }
     public int getNumEfectosPrincipales()    { return numEfectosPrincipales; }
     public Map<String, List<AliasPair>> getAliasMap() { return aliasMap; }
 
@@ -77,7 +78,7 @@ public class AliasStructure {
             for (int xx = 0; xx < a; xx++) {
                 double val = matrizAlias[xx][x];
                 if (Math.abs(val) > ZERO_TOL) {
-                    pairs.add(new AliasPair(val, matrizLetras[xx][x]));
+                    pairs.add(new AliasPair(val, efectos[xx]));
                 }
             }
             if (!pairs.isEmpty()) {
@@ -132,7 +133,7 @@ public class AliasStructure {
                 }
                 String sign = val >= 0 ? "+" : "-";
                 double abs = Math.abs(val);
-                String label = matrizLetras[xx][x];
+                String label = efectos[xx];
                 terms.add(Math.abs(abs - 1.0) < 0.0001
                         ? sign + label
                         : String.format("%s%.6f·%s", sign, abs, label));
@@ -178,7 +179,7 @@ public class AliasStructure {
                 double val = matrizAlias[xx][x];
                 if (val != 0) {
                     System.out.printf(" %+f %n", val);
-                    System.out.println(matrizLetras[xx][x]);
+                    System.out.println(efectos[xx]);
                 }
             }
         }

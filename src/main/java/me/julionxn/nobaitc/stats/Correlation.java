@@ -3,6 +3,8 @@ package me.julionxn.nobaitc.stats;
 import me.julionxn.nobaitc.math.LinearAlgebra;
 import me.julionxn.nobaitc.math.VectorOps;
 
+import java.util.stream.IntStream;
+
 /**
  * Estadística de correlación: coeficiente de Pearson y matriz de correlaciones
  * ({@code corrcoef}).
@@ -47,6 +49,50 @@ public final class Correlation {
             }
         }
         return corrMatrix;
+    }
+
+    /**
+     * Igual que {@link #corrcoef}, pero devuelve sólo el triángulo inferior, en
+     * forma de arreglo TRIANGULAR: la fila {@code i} tiene {@code i+1}
+     * elementos (columnas {@code 0..i}; la diagonal, siempre 1.0, queda en la
+     * última posición de cada fila).
+     *
+     * <p>Nunca reserva una matriz {@code L×L} completa — para {@code cols}
+     * columnas usa la mitad de la memoria de {@link #corrcoef}. Importa cuando
+     * {@code L} crece a miles de columnas: la estructura de alias de un diseño
+     * de {@code n} factores tiene {@code L = n + C(n,2) + C(n,3)} efectos (para
+     * {@code n=40}, {@code L=10 700}, y una sola matriz {@code L×L} de
+     * {@code double} pesaría ~870&nbsp;MB).</p>
+     *
+     * <p>Las filas se calculan en paralelo ({@code IntStream.parallel()}): cada
+     * fila es independiente de las demás, así que en una máquina con varios
+     * núcleos el cálculo —dominado por las ~{@code L²/2} correlaciones
+     * pairwise— se reparte entre ellos sin cambiar el resultado.</p>
+     */
+    public static double[][] lowerTriangleCorrcoef(double[][] matrix) {
+        if (matrix == null || matrix.length == 0) {
+            throw new IllegalArgumentException("Matriz vacía");
+        }
+
+        int cols = matrix[0].length;
+        double[] means = new double[cols];
+        double[] stdDevs = new double[cols];
+        for (int j = 0; j < cols; j++) {
+            double[] column = LinearAlgebra.extractColumn(matrix, j);
+            means[j] = VectorOps.mean(column);
+            stdDevs[j] = VectorOps.standardDeviation(column, means[j]);
+        }
+
+        double[][] result = new double[cols][];
+        IntStream.range(0, cols).parallel().forEach(i -> {
+            double[] row = new double[i + 1];
+            for (int j = 0; j < i; j++) {
+                row[j] = pearsonByColumn(matrix, i, j, means[i], means[j], stdDevs[i], stdDevs[j]);
+            }
+            row[i] = 1.0;
+            result[i] = row;
+        });
+        return result;
     }
 
     /** Correlación de Pearson entre dos vectores del mismo tamaño. */

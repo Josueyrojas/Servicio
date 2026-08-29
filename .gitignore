@@ -1,6 +1,4 @@
-# Project exclude paths
-/target/
-/out/
-/out-app/
-/dist-input/
-/dist-out/
+dist-out/
+target/
+out-app/
+dist-out/

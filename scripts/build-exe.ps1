@@ -36,6 +36,7 @@ $deps = @(
     "org\apache\commons\commons-collections4\4.4\commons-collections4-4.4.jar",
     "org\apache\commons\commons-compress\1.26.1\commons-compress-1.26.1.jar",
     "org\apache\commons\commons-math3\3.6.1\commons-math3-3.6.1.jar",
+    "commons-io\commons-io\2.11.0\commons-io-2.11.0.jar",
     "com\github\virtuald\curvesapi\1.07\curvesapi-1.07.jar",
     "org\slf4j\slf4j-api\1.7.36\slf4j-api-1.7.36.jar",
     "org\slf4j\slf4j-simple\1.7.36\slf4j-simple-1.7.36.jar",

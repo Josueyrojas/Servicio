@@ -17,9 +17,8 @@ import java.util.ResourceBundle;
 
 /**
  * Controlador para la vista de Estructura de Alias.
- * Acepta el formato de matriz MATLAB:
- *   [1 2 3 4 5 1 2 3 4 5; 1 2 3 4 5 6 7 1 2 3; 1 2 3 1 2 3 1 2 3 1]
- * y la transpone automáticamente (equivalente al ' de MATLAB).
+ * Acepta la fracción en el mismo formato que entrega NONBPA:
+ * una fila por corrida y una columna por factor ({@code [corridas][factores]}).
  */
 public class AliasStructureController implements Initializable {
     @FXML
@@ -82,13 +81,11 @@ public class AliasStructureController implements Initializable {
         resultArea.setWrapText(false);
  
         inputMatrixArea.setPromptText(
-            "Ingrese la fracción en formato MATLAB:\n" +
-            "[1 2 3 4 5 1 2 3 4 5; 1 2 3 4 5 6 7 1 2 3; 1 2 3 1 2 3 1 2 3 1]\n\n" +
-            "Cada FILA separada por  ;  (punto y coma).\n" +
+            "Ingrese la fracción como NONBPA: una fila por corrida y una columna por factor.\n" +
+            "Ejemplo: 1 1 1; 1 2 1; 2 1 2; 2 2 2\n\n" +
+            "Cada FILA separada por  ;  (punto y coma) o por salto de línea.\n" +
             "Los valores dentro de cada fila separados por COMA o espacio.\n\n" +
-            "⚠ Si omite el  ;  entre filas, todos los valores se tratan\n" +
-            "   como una sola fila y se suman como si fueran una sola fracción.\n\n" +
-            "La matriz se transpone automáticamente (equivalente a ' en MATLAB)."
+            "La matriz se analizará directamente como [corridas][factores], igual que en NONBPA."
         );
         showGridpane();
         statusLabel.setText("Ingrese la fracción y presione Calcular.");
@@ -106,12 +103,9 @@ public class AliasStructureController implements Initializable {
             return;
         }
 
-        // 1. Parsear formato MATLAB → matriz double[][]
-        double[][] matrizMATLAB = parseMatlabMatrix(text);
-        if (matrizMATLAB == null) return;
-
-        // 2. Transponer
-        double[][] fraction = transpose(matrizMATLAB);
+        // La entrada usa el mismo formato [corridas][factores] que NONBPA.
+        double[][] fraction = parseMatlabMatrix(text);
+        if (fraction == null) return;
 
         // 3. Mostrar info de dimensiones
         int corridas = fraction.length;
@@ -204,8 +198,8 @@ public class AliasStructureController implements Initializable {
             return;
         }
 
-        // 2. Transponer
-        double[][] fraction = transpose(matrizExtraida);
+        // La cuadrícula ya está organizada como [corridas][factores].
+        double[][] fraction = matrizExtraida;
 
         // 3. Mostrar info de dimensiones
         int corridas = fraction.length;
@@ -276,19 +270,19 @@ public class AliasStructureController implements Initializable {
     }
 
     // =========================================================================
-    // Parser — formato MATLAB
+    // Parser — formato de fracción [corridas][factores]
     // =========================================================================
 
     /**
-     * Parsea una cadena en formato MATLAB a double[][].
+    * Parsea una cadena de fracción a double[][] con forma [corridas][factores].
      *
      * Formatos aceptados:
-     *   [1 2 3; 4 5 6; 7 8 9]     → con corchetes
+    *   [1 2 3; 4 5 6; 7 8 9]     → con corchetes
      *   1 2 3; 4 5 6; 7 8 9       → sin corchetes
      *   1 2 3\n4 5 6\n7 8 9       → saltos de línea como separador de filas
      *   1,2,3;4,5,6;7,8,9         → comas como separador de valores
      *
-     * La matriz resultante NO está transpuesta todavía.
+    * La matriz resultante conserva el orden de entrada; no se transpone.
      */
     private double[][] parseMatlabMatrix(String text) {
         // Quitar corchetes [ ]
@@ -347,22 +341,6 @@ public class AliasStructureController implements Initializable {
         }
 
         return rows.toArray(new double[0][]);
-    }
-
-    /**
-     * Transpone una matriz double[][].
-     * Equivalente al operador ' de MATLAB.
-     */
-    private double[][] transpose(double[][] matrix) {
-        int rows = matrix.length;
-        int cols = matrix[0].length;
-        double[][] result = new double[cols][rows];
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                result[j][i] = matrix[i][j];
-            }
-        }
-        return result;
     }
 
     // =========================================================================

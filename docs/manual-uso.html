@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Manual de uso | NOBAITC</title>
+  <style>
+    @page { size: A4; margin: 19mm 20mm 20mm; }
+    body { color: #253238; font-family: Calibri, Arial, sans-serif; font-size: 11pt; line-height: 1.42; }
+    h1, h2, h3 { color: #164f4a; }
+    h1 { font-size: 25pt; margin: 0 0 12pt; }
+    h2 { border-bottom: 1.5pt solid #d7e5df; font-size: 17pt; margin: 20pt 0 8pt; padding-bottom: 4pt; }
+    h3 { font-size: 12.5pt; margin: 14pt 0 5pt; }
+    p { margin: 5pt 0 8pt; }
+    ul, ol { margin: 5pt 0 9pt; padding-left: 22pt; }
+    li { margin: 3pt 0; }
+    code { background: #f0f4f2; color: #164f4a; font-family: Consolas, monospace; font-size: 9.5pt; padding: 1pt 3pt; }
+    pre { background: #f0f4f2; border-left: 3pt solid #d77955; font-family: Consolas, monospace; font-size: 9.5pt; line-height: 1.35; padding: 9pt 12pt; }
+    table { border-collapse: collapse; margin: 8pt 0 12pt; width: 100%; }
+    th { background: #164f4a; color: white; text-align: left; }
+    th, td { border: 0.6pt solid #d7e0dd; padding: 6pt 8pt; vertical-align: top; }
+    .cover { color: white; height: 680pt; page-break-after: always; position: relative; }
+    .cover-band { background: #164f4a; box-sizing: border-box; height: 100%; padding: 32pt 36pt; }
+    .brand { color: #b8d9ca; font-size: 12pt; font-weight: bold; letter-spacing: 2pt; }
+    .cover h1 { color: white; font-size: 38pt; line-height: 1.05; margin-top: 130pt; }
+    .cover .subtitle { color: #e1eee8; font-size: 17pt; }
+    .cover .edition { border-top: 1pt solid #6e9b8c; color: #d2e4dc; margin-top: 130pt; padding-top: 12pt; }
+    .eyebrow { color: #d77955; font-size: 9pt; font-weight: bold; text-transform: uppercase; }
+    .note { background: #f4f7f5; border-left: 3pt solid #d77955; margin: 9pt 0; padding: 7pt 10pt; }
+    .small { color: #59686c; font-size: 9.5pt; }
+    h2, h3, tr { page-break-inside: avoid; }
+  </style>
+</head>
+<body>
+  <section class="cover">
+    <div class="cover-band">
+      <div class="brand">NOBAITC</div>
+      <h1>Manual<br>de uso</h1>
+      <p class="subtitle">Generación NONBPA y análisis de estructuras de alias</p>
+      <p class="edition">Guía de usuario · Versión 1.0</p>
+    </div>
+  </section>
+
+  <p class="eyebrow">Guía de usuario</p>
+  <h1>Trabajar con NOBAITC</h1>
+  <p>NOBAITC es una aplicación de escritorio para generar fracciones factoriales mediante NONBPA y analizar la estructura de alias de una matriz experimental. Los cálculos se ejecutan en segundo plano; la interfaz muestra los resultados y los avisos de validación.</p>
+
+  <h2>1. Iniciar y navegar</h2>
+  <ul>
+    <li><strong>Versión distribuida:</strong> ejecuta <code>dist-out/NOBAITC/NOBAITC.exe</code>. Mantén completa la carpeta <code>NOBAITC</code>, que contiene el runtime de Java y los archivos necesarios.</li>
+    <li><strong>Desde el código fuente:</strong> con Java 17 y Maven instalados, ejecuta <code>mvn javafx:run</code> desde la carpeta del proyecto.</li>
+  </ul>
+  <p>Al iniciar se abre el módulo <strong>NONBPA</strong>. La barra superior permite cambiar entre <strong>NONBPA</strong> y <strong>Alias Structure</strong>. La opción <strong>Others</strong> aún no está disponible.</p>
+
+  <h2>2. Generar fracciones NONBPA</h2>
+  <ol>
+    <li>En <strong>Datos</strong>, configura los niveles de los factores. La pantalla comienza con dos factores; usa <strong>+</strong> y <strong>−</strong> para agregar o quitar factores. Cada factor necesita al menos 2 niveles.</li>
+    <li>Revisa <strong>Información del Diseño</strong> y confirma que el diseño sea válido.</li>
+    <li>Define el <strong>Tamaño de fracción (SF)</strong> dentro del intervalo permitido.</li>
+    <li>Elige fracciones aleatorias o personalizadas y completa los datos que correspondan.</li>
+    <li>Pulsa <strong>Generar Fracciones</strong>. Si la entrada o el diseño no son válidos, corrige los datos indicados por la aplicación.</li>
+  </ol>
+
+  <h3>Validaciones del diseño</h3>
+  <table>
+    <tr><th>Parámetro</th><th>Significado y condición</th></tr>
+    <tr><td>Factores</td><td>Entre 1 y 15 factores; cada uno debe tener nivel 2 o superior.</td></tr>
+    <tr><td>TR</td><td>Producto de los niveles de todos los factores.</td></tr>
+    <tr><td>LCM</td><td>Mínimo común múltiplo de los niveles. El diseño requiere <code>TR = LCM</code>.</td></tr>
+    <tr><td>GL</td><td>Grados de libertad calculados como número de factores + 2.</td></tr>
+    <tr><td>SF min</td><td>El mayor valor entre GL y el nivel más alto.</td></tr>
+    <tr><td>SF</td><td>Debe cumplir <code>SF min ≤ SF &lt; TR</code>.</td></tr>
+  </table>
+
+  <h3>Elegir fracciones</h3>
+  <ul>
+    <li><strong>Aleatorias:</strong> indica cuántas generar. El inicio se elige al azar, sin repetición, entre 1 y TR.</li>
+    <li><strong>Personalizadas:</strong> escribe los índices de inicio separados por comas o espacios, por ejemplo <code>1, 3, 5</code> o <code>[1 3 5]</code>. Cada índice debe estar entre 1 y TR. La lista determina cuántas fracciones se generan; el campo <strong>Número de fracciones</strong> no limita esta lista.</li>
+  </ul>
+
+  <h2>3. Consultar y exportar resultados</h2>
+  <p>La pestaña <strong>Tablas</strong> presenta las fracciones generadas y sus métricas: inicio, matriz de datos, GBM, J2, GBM por factor, VIF y resumen de alias.</p>
+  <ul>
+    <li>Haz doble clic en una fila para copiar la matriz al portapapeles y abrir los detalles.</li>
+    <li>Selecciona una fila y pulsa <strong>Copiar tabla</strong> para copiar el resumen y la matriz.</li>
+    <li>Pulsa <strong>EXCEL</strong> o <strong>PDF</strong> para elegir dónde guardar el reporte de resultados.</li>
+    <li>Selecciona una fila y pulsa <strong>Enviar a Alias</strong> para cargar esa matriz en el módulo de análisis.</li>
+    <li><strong>Limpiar datos</strong> elimina los resultados y restablece el formulario.</li>
+  </ul>
+
+  <h2>4. Analizar una estructura de alias</h2>
+  <p>En <strong>Alias Structure</strong>, introduce la matriz con una de estas dos modalidades:</p>
+  <h3>Matrix</h3>
+  <p>Define <strong>m</strong> (corridas o filas) y <strong>n</strong> (factores o columnas), completa las celdas y pulsa <strong>Calcular Alias</strong>. La cuadrícula admite hasta 120 filas y 120 columnas. Las celdas vacías se interpretan como 0; complétalas explícitamente para evitar resultados accidentales.</p>
+  <h3>PlainText</h3>
+  <p>Pega una fila por corrida. Separa las filas con punto y coma o saltos de línea; separa los valores con espacios o comas. Se permiten corchetes exteriores. Todas las filas deben tener la misma cantidad de valores. Para decimales, usa punto.</p>
+  <pre>1 1 1
+1 2 1
+2 1 2
+2 2 2</pre>
+  <p>Pulsa <strong>Calcular Alias</strong>. El resultado indica las dimensiones, si el diseño es ortogonal o cuántos alias encontró, y muestra las relaciones entre efectos principales e interacciones. Para cálculos grandes puede aparecer una confirmación; elige continuar o cancelar. <strong>Limpiar</strong> borra la entrada y el resultado.</p>
+
+  <h2>5. Solución de problemas</h2>
+  <table>
+    <tr><th>Situación</th><th>Qué revisar</th></tr>
+    <tr><td>Diseño no válido</td><td>Comprueba que cada nivel sea al menos 2, que haya como máximo 15 factores y que <code>TR = LCM</code>.</td></tr>
+    <tr><td>Tamaño de fracción no válido</td><td>Usa un valor desde <code>SF min</code> hasta un valor estrictamente menor que <code>TR</code>.</td></tr>
+    <tr><td>Índice personalizado fuera de rango</td><td>Verifica que cada inicio esté entre 1 y <code>TR</code>.</td></tr>
+    <tr><td>Matriz de alias inválida</td><td>Comprueba que no haya filas vacías y que todas tengan la misma cantidad de valores. En Matrix, verifica las dimensiones y las celdas.</td></tr>
+    <tr><td>El ejecutable no inicia</td><td>Ejecuta el archivo EXE desde la carpeta completa <code>NOBAITC</code> extraída, no de forma aislada.</td></tr>
+  </table>
+
+  <p class="note"><strong>Consejo:</strong> al analizar datos pegados, revisa el número de valores por fila antes de calcular. En la cuadrícula, no dejes celdas vacías si no quieres que se interpreten como cero.</p>
+  <p class="small">Para consultar el recorrido visual de la aplicación, abre <code>docs/diagrama-flujo.md</code> en el proyecto.</p>
+</body>
+</html>

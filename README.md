@@ -1,5 +1,14 @@
 # NOBAITC — Reestructuración del proyecto
 
+## Guía del programa
+
+- [Guía de usuario](docs/guia-usuario.md)
+- [Diagrama de flujo](docs/diagrama-flujo.md)
+- [Fuente del manual de uso (HTML)](docs/manual-uso.html)
+- [Manual de uso (PDF)](docs/manual-uso.pdf)
+
+Para generar o actualizar el PDF en Windows con Microsoft Edge instalado, ejecuta `powershell -ExecutionPolicy Bypass -File scripts/export-manual.ps1` desde la carpeta del proyecto.
+
 Documento de migración de la refactorización completa (fases 1–4) y de la
 revisión de la estructura de alias.
 

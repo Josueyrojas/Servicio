@@ -11,6 +11,14 @@ import java.util.List;
  */
 final class EffectLabeler {
 
+    /**
+     * Alfabeto de los factores. Igual que las corridas de Matlab, NO incluye la
+     * letra {@code I} (se confunde con 1 / l): el factor 8 es {@code H} y el 9 es
+     * {@code J}. Verificado contra los reportes de Matlab con 9 factores
+     * ({@code ABJ}, {@code AHJ}…); con 8 factores o menos no cambia nada.
+     */
+    private static final String ALPHABET = "ABCDEFGHJKLMNOPQRSTUVWXYZ";
+
     private final String[] effectNames;     // renglonLetras
 
     /**
@@ -28,8 +36,8 @@ final class EffectLabeler {
         // los 26 factores, "AB"+"AC" (dobles de los factores 27 y 28) sería
         // indistinguible de "A"+"B"+"AC" (triple de los factores 1, 2 y 28): a
         // partir de ahí se usa "-" como separador para que cada nombre siga
-        // siendo único.
-        String sep = factors > 26 ? "-" : "";
+        // siendo único. (Sin la letra I el alfabeto tiene 25 letras.)
+        String sep = factors > ALPHABET.length() ? "-" : "";
 
         List<String> combinations = new ArrayList<>();
         // Efectos principales
@@ -60,12 +68,13 @@ final class EffectLabeler {
         return effectNames;
     }
 
-    /** Convierte un índice (0,1,…,26) en letras estilo Excel (A,B,…,AA). */
+    /** Convierte un índice (0,1,…) en letras estilo Excel sobre {@link #ALPHABET} (A,…,H,J,…,Z,AA). */
     private static String excelLetter(int index) {
+        int base = ALPHABET.length();
         StringBuilder name = new StringBuilder();
         while (index >= 0) {
-            name.insert(0, (char) ('A' + (index % 26)));
-            index = (index / 26) - 1;
+            name.insert(0, ALPHABET.charAt(index % base));
+            index = (index / base) - 1;
         }
         return name.toString();
     }

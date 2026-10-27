@@ -91,6 +91,19 @@ public class AliasAnalyzer {
     /** {@code W(yy,yyy)<0.0001 → 0} de {@code PASO4.m}. */
     private static final double ZERO_TOL = 0.0001;
 
+    /**
+     * Tolerancia para considerar EMPATADAS dos correlaciones al elegir el máximo
+     * de un renglón. Muchos diseños producen correlaciones matemáticamente
+     * idénticas (p. ej. {@code |r(A,BCD)| = |r(AC,BCD)| = 0.204124}) que en
+     * punto flotante difieren en el último bit (~1e-16) según el orden de las
+     * sumas. {@code max()} de Matlab devuelve la PRIMERA ocurrencia del máximo
+     * (la de menor índice de columna), pero con una comparación exacta ({@code >})
+     * el ruido de redondeo decidía el ganador de forma arbitraria y el Java podía
+     * escoger otra cabeza que Matlab. Con esta tolerancia los empates se
+     * resuelven siempre a favor de la columna de menor índice, igual que Matlab.
+     */
+    private static final double TIE_TOL = 1e-9;
+
     private final double[][] fraction;
     private final int n; // factores
 
@@ -464,7 +477,9 @@ public class AliasAnalyzer {
     /**
      * Deja en el renglón {@code row} únicamente el primer valor máximo del
      * bloque {@code [from, to)} (recortado al tamaño real, triangular, del
-     * renglón) y pone a cero todo lo demás del renglón.
+     * renglón) y pone a cero todo lo demás del renglón. Los valores que difieren
+     * en menos de {@link #TIE_TOL} se consideran empatados y gana el de menor
+     * índice (ver {@link #TIE_TOL}).
      *
      * @return {@code true} si ese máximo es distinto de cero (hubo asignación).
      */
@@ -476,7 +491,10 @@ public class AliasAnalyzer {
         }
         int best = from;
         for (int j = from; j < limit; j++) {
-            if (values[j] > values[best]) {
+            // Sólo desplaza al candidato actual si es MAYOR por más que el ruido
+            // de redondeo: un empate lo conserva la columna de menor índice
+            // (primera ocurrencia, como el max() de Matlab).
+            if (values[j] > values[best] + TIE_TOL) {
                 best = j;
             }
         }

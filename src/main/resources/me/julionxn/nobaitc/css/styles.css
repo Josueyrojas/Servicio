@@ -498,3 +498,7 @@
     -fx-padding: 0;
     -fx-background-color: transparent;
 }
+/* Texto envuelto en celdas de tabla (columna Alias) */
+.table-cell .text {
+    -fx-fill: #3c4043;
+}

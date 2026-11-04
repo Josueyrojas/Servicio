@@ -195,10 +195,13 @@ public class NONBPAController implements Initializable {
      */
     private void setupWrappingColumn(TableColumn<FractionRow, String> column) {
         column.setCellFactory(tc -> new TableCell<>() {
-            private final Label label = new Label();
+            // Text (no Label): su alto se recalcula al envolver, así la fila
+            // crece y el alias se ve completo en lugar de terminar en "...".
+            private final Text texto = new Text();
             {
-                label.setWrapText(true);
-                label.maxWidthProperty().bind(column.widthProperty().subtract(10));
+                texto.wrappingWidthProperty().bind(column.widthProperty().subtract(16));
+                texto.getStyleClass().add("text");
+                setPrefHeight(Control.USE_COMPUTED_SIZE);
             }
 
             @Override
@@ -207,11 +210,13 @@ public class NONBPAController implements Initializable {
                 if (empty || value == null) {
                     setGraphic(null);
                 } else {
-                    label.setText(value);
-                    setGraphic(label);
+                    texto.setText(value);
+                    setGraphic(texto);
                 }
             }
         });
+        // Al cambiar el ancho de la columna, recalcular la altura de las filas
+        column.widthProperty().addListener((obs, anterior, nuevo) -> resultsTable.refresh());
     }
 
     private void setupNumericColumn(TableColumn<FractionRow, Double> column) {

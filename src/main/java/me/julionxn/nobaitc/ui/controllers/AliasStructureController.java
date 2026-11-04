@@ -1,9 +1,12 @@
 package me.julionxn.nobaitc.ui.controllers;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import me.julionxn.nobaitc.doe.alias.AliasStructure;
@@ -55,6 +58,12 @@ public class AliasStructureController implements Initializable {
     private Label statusLabel;
 
     private static final int MAX_SIZE = 120;
+
+    /** Dígitos máximos por celda de la matriz (niveles de 1 a 99). */
+    private static final int MAX_DIGITOS = 2;
+
+    /** Celdas de la matriz, indexadas [fila][columna], para navegar con el teclado y pegar. */
+    private TextField[][] celdas = new TextField[0][0];
 
     /**
      * A partir de este número de efectos (principales + dobles + triples) se
@@ -510,27 +519,143 @@ public class AliasStructureController implements Initializable {
 
     private void updateMatrix() {
         gridPaneMatrix.getChildren().clear();
+        celdas = new TextField[0][0];
         String mText = mInputTextField.getText();
         String nText = nInputTextField.getText();
         if (mText == null || mText.trim().isEmpty() || nText == null || nText.trim().isEmpty()) {
             return;
         }
         try {
-            int m = Integer.parseInt(mText);
-            int n = Integer.parseInt(nText);
+            int m = Integer.parseInt(mText.trim());
+            int n = Integer.parseInt(nText.trim());
             if (m <= 0 || n <= 0 || m > MAX_SIZE || n > MAX_SIZE) {
                 return;
             }
+            celdas = new TextField[m][n];
             for (int i = 0; i < m; i++) {          // Rows
                 for (int j = 0; j < n; j++) {      // Columns
-                    TextField cell = new TextField();
-                    cell.setMinWidth(50);
-                    cell.setMaxWidth(50);
-                    cell.setPromptText("[" + i + "," + j + "]");
-                    gridPaneMatrix.add(cell, j, i); // Column (j) goes first, then Row (i)
+                    celdas[i][j] = crearCelda(i, j);
+                    gridPaneMatrix.add(celdas[i][j], j, i); // Column (j) goes first, then Row (i)
                 }
             }
         } catch (NumberFormatException e) {
+        }
+    }
+
+    /**
+     * Crea una celda de la matriz con:
+     *  - validación: solo dígitos, máximo {@link #MAX_DIGITOS}, valor >= 1;
+     *  - selección automática al entrar (escribir reemplaza el valor);
+     *  - navegación con flechas / Enter;
+     *  - pegado directo desde Excel / Google Sheets.
+     */
+    private TextField crearCelda(int fila, int col) {
+        TextField cell = new TextField() {
+            @Override
+            public void paste() { // Ctrl+V y menú contextual
+                String txt = Clipboard.getSystemClipboard().getString();
+                if (txt != null && !txt.isBlank()) {
+                    pegarBloque(txt, fila, col);
+                }
+            }
+        };
+        cell.setMinWidth(50);
+        cell.setMaxWidth(50);
+        cell.setPromptText("[" + fila + "," + col + "]");
+
+        // 1) Solo enteros de hasta MAX_DIGITOS dígitos y >= 1
+        cell.setTextFormatter(new TextFormatter<String>(change -> {
+            String nuevo = change.getControlNewText();
+            if (nuevo.isEmpty()) return change;                       // permite borrar
+            if (!nuevo.matches("\\d{1," + MAX_DIGITOS + "}")) return null;
+            return Integer.parseInt(nuevo) >= 1 ? change : null;      // bloquea 0
+        }));
+
+        // 2) Seleccionar todo al recibir el foco
+        cell.focusedProperty().addListener((obs, antes, ahora) -> {
+            if (ahora) Platform.runLater(cell::selectAll);
+        });
+
+        // 3) Navegación con flechas y Enter
+        cell.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+            int r = fila, c = col;
+            boolean haySeleccion = !cell.getSelectedText().isEmpty();
+            switch (e.getCode()) {
+                case UP -> r--;
+                case DOWN, ENTER -> r++;
+                case LEFT -> {
+                    if (haySeleccion || cell.getCaretPosition() == 0) c--; else return;
+                }
+                case RIGHT -> {
+                    if (haySeleccion || cell.getCaretPosition() == cell.getLength()) c++; else return;
+                }
+                default -> { return; }
+            }
+            if (r >= 0 && r < celdas.length && c >= 0 && c < celdas[0].length) {
+                celdas[r][c].requestFocus();
+                e.consume();
+            }
+        });
+
+        return cell;
+    }
+
+    /**
+     * Pega un bloque copiado de Excel / Google Sheets (tabulador entre columnas,
+     * salto de línea entre filas) con la esquina superior izquierda en (r0, c0).
+     * Si el bloque no cabe, la matriz crece conservando lo ya escrito.
+     */
+    private void pegarBloque(String txt, int r0, int c0) {
+        String[] filas = txt.trim().split("\\R");
+        String[][] datos = new String[filas.length][];
+        int maxCols = 0;
+        for (int i = 0; i < filas.length; i++) {
+            datos[i] = filas[i].trim().split("[\\t ,;]+");
+            maxCols = Math.max(maxCols, datos[i].length);
+        }
+
+        int mActual = celdas.length;
+        int nActual = mActual > 0 ? celdas[0].length : 0;
+        int m = Math.max(mActual, r0 + filas.length);
+        int n = Math.max(nActual, c0 + maxCols);
+        if (m > MAX_SIZE || n > MAX_SIZE) {
+            showStatus("Error: lo pegado excede " + MAX_SIZE + " filas o columnas.", true);
+            return;
+        }
+
+        if (m != mActual || n != nActual) {
+            // Guardar lo escrito, redimensionar (updateMatrix se dispara solo) y restaurar
+            String[][] previo = new String[mActual][nActual];
+            for (int i = 0; i < mActual; i++) {
+                for (int j = 0; j < nActual; j++) {
+                    previo[i][j] = celdas[i][j].getText();
+                }
+            }
+            mInputTextField.setText(String.valueOf(m));
+            nInputTextField.setText(String.valueOf(n));
+            for (int i = 0; i < mActual; i++) {
+                for (int j = 0; j < nActual; j++) {
+                    celdas[i][j].setText(previo[i][j]);
+                }
+            }
+        }
+
+        int invalidos = 0;
+        for (int i = 0; i < datos.length; i++) {
+            for (int j = 0; j < datos[i].length; j++) {
+                String v = datos[i][j];
+                if (v.matches("\\d{1," + MAX_DIGITOS + "}") && Integer.parseInt(v) >= 1) {
+                    celdas[r0 + i][c0 + j].setText(v);
+                } else {
+                    invalidos++;
+                }
+            }
+        }
+        if (invalidos == 0) {
+            showStatus("Pegado: " + datos.length + " × " + maxCols + ".", false);
+        } else {
+            showStatus("Pegado con " + invalidos
+                    + " valor(es) no válidos ignorados (solo enteros de 1 a 99).", true);
         }
     }
 
